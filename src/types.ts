@@ -1,133 +1,123 @@
-type Brand<T, U> = T & { __COBOL_JS: U };
+/**
+ * _SINED_CHARS
+ *
+ * +0: "{"
+ * +1: "A"
+ * +2: "B"
+ * +3: "C"
+ * +4: "D"
+ * +5: "E"
+ * +6: "F"
+ * +7: "G"
+ * +8: "H"
+ * +9: "I"
+ * -0: "}"
+ * -1: "J"
+ * -2: "K"
+ * -3: "L"
+ * -4: "M"
+ * -5: "N"
+ * -6: "O"
+ * -7: "P"
+ * -8: "Q"
+ * -9: "R"
+ */
+const _SIGNED_CHARS = [
+  { d: "0", c: "0" },
+  { d: "1", c: "1" },
+  { d: "2", c: "2" },
+  { d: "3", c: "3" },
+  { d: "4", c: "4" },
+  { d: "5", c: "5" },
+  { d: "6", c: "6" },
+  { d: "7", c: "7" },
+  { d: "8", c: "8" },
+  { d: "9", c: "9" },
+  { d: "+0", c: "{" },
+  { d: "+1", c: "A" },
+  { d: "+2", c: "B" },
+  { d: "+3", c: "C" },
+  { d: "+4", c: "D" },
+  { d: "+5", c: "E" },
+  { d: "+6", c: "F" },
+  { d: "+7", c: "G" },
+  { d: "+8", c: "H" },
+  { d: "+9", c: "I" },
+  { d: "-0", c: "}" },
+  { d: "-1", c: "J" },
+  { d: "-2", c: "K" },
+  { d: "-3", c: "L" },
+  { d: "-4", c: "M" },
+  { d: "-5", c: "N" },
+  { d: "-6", c: "O" },
+  { d: "-7", c: "P" },
+  { d: "-8", c: "Q" },
+  { d: "-9", c: "R" },
+] as const;
+
+const d2c = new Map<SIGNED_DIGIT, SIGNED_CHAR>(
+  _SIGNED_CHARS.map(({ d, c }) => [d, c]),
+);
+const c2n = new Map<SIGNED_CHAR, SIGNED_DIGIT>(
+  _SIGNED_CHARS.map(({ d, c }) => [c, d]),
+);
 
 /**
- * SIGNED_CHAR
+ * SIGNED_DIGIT: +0, +1, ..., +9, -0, -1, ..., -9
  */
-type SIGNED_CHAR =
-  | "{"
-  | "A"
-  | "B"
-  | "C"
-  | "D"
-  | "E"
-  | "F"
-  | "G"
-  | "H"
-  | "I"
-  | "}"
-  | "J"
-  | "K"
-  | "L"
-  | "M"
-  | "N"
-  | "O"
-  | "P"
-  | "Q"
-  | "R";
-const SIGNED_CHAR = {
+type SIGNED_DIGIT = typeof _SIGNED_CHARS[number]["d"];
+const SIGNED_DIGIT = (digit: SIGNED_DIGIT = "0") => ({
   /**
-   * parse
-   *
-   * +0 --> "{"
-   * +1 --> "A"
-   * +2 --> "B"
-   * +3 --> "C"
-   * +4 --> "D"
-   * +5 --> "E"
-   * +6 --> "F"
-   * +7 --> "G"
-   * +8 --> "H"
-   * +9 --> "I"
-   * -0 --> "}"
-   * -1 --> "J"
-   * -2 --> "K"
-   * -3 --> "L"
-   * -4 --> "M"
-   * -5 --> "N"
-   * -6 --> "O"
-   * -7 --> "P"
-   * -8 --> "Q"
-   * -9 --> "R"
+   * toChar +1 => "A"
    */
-  parse(n: number): SIGNED_CHAR {
-    switch (n % 10) {
-      case 0:
-        return (n >= 0 ? "{" : "}") as SIGNED_CHAR;
-      case 1:
-        return "A" as SIGNED_CHAR;
-      case 2:
-        return "B" as SIGNED_CHAR;
-      case 3:
-        return "C" as SIGNED_CHAR;
-      case 4:
-        return "D" as SIGNED_CHAR;
-      case 5:
-        return "E" as SIGNED_CHAR;
-      case 6:
-        return "F" as SIGNED_CHAR;
-      case 7:
-        return "G" as SIGNED_CHAR;
-      case 8:
-        return "H" as SIGNED_CHAR;
-      case 9:
-        return "I" as SIGNED_CHAR;
-      case -1:
-        return "J" as SIGNED_CHAR;
-      case -2:
-        return "K" as SIGNED_CHAR;
-      case -3:
-        return "L" as SIGNED_CHAR;
-      case -4:
-        return "M" as SIGNED_CHAR;
-      case -5:
-        return "N" as SIGNED_CHAR;
-      case -6:
-        return "O" as SIGNED_CHAR;
-      case -7:
-        return "P" as SIGNED_CHAR;
-      case -8:
-        return "Q" as SIGNED_CHAR;
-      case -9:
-        return "R" as SIGNED_CHAR;
-      default:
-        throw new Error("Invalid number");
-    }
+  toChar(): SIGNED_CHAR {
+    return d2c.get(digit) as SIGNED_CHAR;
   },
 
-  toNumber(c: SIGNED_CHAR): number {
-    switch (c) {
-      case "{":
-      case "}":
-        return 0;
-      case "A":
-      case "J":
-        return 1;
-      case "B":
-      case "K":
-        return 2;
-      case "C":
-      case "L":
-        return 3;
-      case "D":
-      case "M":
-        return 4;
-      case "E":
-      case "N":
-        return 5;
-      case "F":
-      case "O":
-        return 6;
-      case "G":
-      case "P":
-        return 7;
-      case "H":
-      case "Q":
-        return 8;
-      case "I":
-      case "R":
-        return 9;
-    }
+  /**
+   * isNegative -1 => true
+   */
+  isNegative(): boolean {
+    return digit.startsWith("-");
   },
+
+  /**
+   * toNumber +1 => 1
+   */
+  toNumber(): number {
+    return Number(digit);
+  },
+});
+
+/**
+ * parse 1234 => +4
+ */
+SIGNED_DIGIT.parse = (n: number) =>
+  SIGNED_DIGIT((n < 0 ? "-" : "+") + Math.abs(n) % 10 as SIGNED_DIGIT);
+
+/**
+ * SIGNED_CHAR: "{", "A", ..., "I", "}", "J", ..., "R"
+ */
+type SIGNED_CHAR = typeof _SIGNED_CHARS[number]["c"];
+const SIGNED_CHAR = (c: SIGNED_CHAR) => ({
+  /**
+   * toDigit "A" => +1
+   */
+  toDigit(): SIGNED_DIGIT {
+    return c2n.get(c) as SIGNED_DIGIT;
+  },
+});
+
+/**
+ * parse "000A" => "A"
+ */
+SIGNED_CHAR.parse = (str: string) => {
+  str = str.slice(-1);
+  return SIGNED_CHAR(
+    c2n.has(str as SIGNED_CHAR)
+      ? str as SIGNED_CHAR
+      : d2c.get("0") as SIGNED_CHAR,
+  );
 };
 
 /**
@@ -135,75 +125,46 @@ const SIGNED_CHAR = {
  *
  * S9(4), S9999, etc.
  */
-export type SIGNED_NUMBER = Brand<number, "SIGNED_NUMBER">;
-export const SIGNED_NUMBER = {
-  /**
-   * new
-   *
-   * Alias of `as`
-   * e.g.
-   * SIGNED_NUMBER.new() // = 0 as SIGNED_NUMBER
-   * SIGNED_NUMBER.new(1) // = 1 as SIGNED_NUMBER
-   */
-  new(value: number = 0): SIGNED_NUMBER {
-    return value as SIGNED_NUMBER;
-  },
+export type SIGNED_NUMBER = number & { __COBOL_JS_SIGNED_NUMBER: never };
 
-  /**
-   * parse
-   *
-   * e.g.
-   * SIGNED_NUMBER.parse("0") // 0
-   * SIGNED_NUMBER.parse("{") // 0
-   * SIGNED_NUMBER.parse("1}") // -10
-   * SIGNED_NUMBER.parse("001}") // -10
-   */
-  parse(str: string): SIGNED_NUMBER {
-    const char = str.charAt(str.length - 1);
-    switch (char) {
-      case "{":
-      case "A":
-      case "B":
-      case "C":
-      case "D":
-      case "E":
-      case "F":
-      case "G":
-      case "H":
-      case "I":
-        return Number.parseInt(
-          str.slice(0, -1) + SIGNED_CHAR.toNumber(char),
-        ) as SIGNED_NUMBER;
-      case "}":
-      case "J":
-      case "K":
-      case "L":
-      case "M":
-      case "N":
-      case "O":
-      case "P":
-      case "Q":
-      case "R":
-        return -Number.parseInt(
-          str.slice(0, -1) + SIGNED_CHAR.toNumber(char),
-        ) as SIGNED_NUMBER;
-      default:
-        return Number.parseInt(str, 10) as SIGNED_NUMBER;
-    }
-  },
+/**
+ * Alias of `as`
+ *
+ * e.g.
+ * SIGNED_NUMBER()  // = 0 as SIGNED_NUMBER
+ * SIGNED_NUMBER(1) // = 1 as SIGNED_NUMBER
+ */
+export const SIGNED_NUMBER = (n: number = 0) => n as SIGNED_NUMBER;
 
-  /**
-   * toString
-   *
-   * e.g.
-   * SIGEND_NUMBER.toString(0) // "{"
-   * SIGEND_NUMBER.toString(3) // "C"
-   * SIGEND_NUMBER.toString(-10, 4) // "001}"
-   */
-  toString(value: SIGNED_NUMBER, length = 0): string {
-    const abs = Math.abs(value);
-    if (abs < 10) return SIGNED_CHAR.parse(value).padStart(length, "0");
-    return (Math.floor(abs / 10).toString() +
-      SIGNED_CHAR.parse(value).toString()).padStart(length, "0");
-  },
+/**
+ * parse
+ *
+ * e.g.
+ * SIGNED_NUMBER.parse("0000") // = 0
+ * SIGNED_NUMBER.parse("000{") // = 0
+ * SIGNED_NUMBER.parse("001}") // = -10
+ * SIGNED_NUMBER.parse("001}") // = -10
+ */
+SIGNED_NUMBER.parse = (str: string): SIGNED_NUMBER => {
+  const trancate = Number(str.slice(0, -1)) * 10;
+  const digit = SIGNED_DIGIT(SIGNED_CHAR.parse(str).toDigit());
+  return (trancate + Math.abs(digit.toNumber())) *
+    (digit.isNegative() ? -1 : 1) as SIGNED_NUMBER;
+};
+
+/**
+ * toString
+ *
+ * e.g.
+ * SIGEND_NUMBER.toString(0)      // = "{"
+ * SIGEND_NUMBER.toString(3)      // = "C"
+ * SIGEND_NUMBER.toString(33)     // = "3C"
+ * SIGEND_NUMBER.toString(-10, 4) // = "001}"
+ */
+SIGNED_NUMBER.toString = (n: SIGNED_NUMBER, length = 0): string => {
+  const char = SIGNED_DIGIT.parse(n).toChar();
+  return (n > -10 && n < 10
+    ? char
+    : Math.floor(Math.abs(n) / 10).toString() + char)
+    .padStart(length, "0");
 };
