@@ -1,5 +1,5 @@
 import { assertEquals } from "assert";
-import { SIGNED_NUMBER } from "./types.ts";
+import { SIGNED_NUMBER } from "./mod.ts";
 
 Deno.test("SIGNED_NUMBER", async (t) => {
   await t.step("new()", () => {
