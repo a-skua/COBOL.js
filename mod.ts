@@ -121,50 +121,79 @@ SIGNED_CHAR.parse = (str: string) => {
 };
 
 /**
- * SIGNED_NUMBER
- *
- * S9(4), S9999, etc.
+ * SIGNED_NUMBER is S9(4), S9999, etc.
  */
 export type SIGNED_NUMBER = number & { __COBOL_JS_SIGNED_NUMBER: never };
 
 /**
- * Alias of `as`
+ * SIGNED_NUMBER object
  *
  * e.g.
- * SIGNED_NUMBER()  // = 0 as SIGNED_NUMBER
- * SIGNED_NUMBER(1) // = 1 as SIGNED_NUMBER
+ * ```js
+ * const a = SIGNED_NUMBER.parse("000A").as() // 1
+ * const b = 10;
+ * const c = SIGNED_NUMBER(a + b).toString(4) // "001A"
+ * ```
  */
-export const SIGNED_NUMBER = (n: number = 0) => n as SIGNED_NUMBER;
+export const SIGNED_NUMBER = (n: number = 0): {
+  as(): SIGNED_NUMBER;
+  toString(length?: number): string;
+} => ({
+  /**
+   * Alias of `as`
+   */
+  as(): SIGNED_NUMBER {
+    return n as SIGNED_NUMBER;
+  },
+
+  /**
+   * toString
+   *
+   * e.g.
+   * ```js
+   * SIGEND_NUMBER.toString(0)      // = "{"
+   * SIGEND_NUMBER.toString(3)      // = "C"
+   * SIGEND_NUMBER.toString(33)     // = "3C"
+   * SIGEND_NUMBER.toString(-10, 4) // = "001}"
+   * ```
+   */
+  toString: (length = 0): string => {
+    const char = SIGNED_DIGIT.parse(n).toChar();
+    return (n > -10 && n < 10
+      ? char
+      : Math.floor(Math.abs(n) / 10).toString() + char)
+      .padStart(length, "0");
+  },
+});
 
 /**
- * parse
+ * parse String
  *
  * e.g.
- * SIGNED_NUMBER.parse("0000") // = 0
- * SIGNED_NUMBER.parse("000{") // = 0
- * SIGNED_NUMBER.parse("001}") // = -10
- * SIGNED_NUMBER.parse("001}") // = -10
+ * ```js
+ * const a = SIGNED_NUMBER.parse("000A").as() // 1
+ * const b = 10;
+ * const c = SIGNED_NUMBER(a + b).toString(4) // "001A"
+ * ```
  */
-SIGNED_NUMBER.parse = (str: string): SIGNED_NUMBER => {
+SIGNED_NUMBER.parse = (str: string): ReturnType<typeof SIGNED_NUMBER> => {
   const trancate = Number(str.slice(0, -1)) * 10;
   const digit = SIGNED_DIGIT(SIGNED_CHAR.parse(str).toDigit());
-  return (trancate + Math.abs(digit.toNumber())) *
-    (digit.isNegative() ? -1 : 1) as SIGNED_NUMBER;
+  return SIGNED_NUMBER(
+    (trancate + Math.abs(digit.toNumber())) * (digit.isNegative() ? -1 : 1),
+  );
 };
 
 /**
  * toString
  *
  * e.g.
+ * ```js
  * SIGEND_NUMBER.toString(0)      // = "{"
  * SIGEND_NUMBER.toString(3)      // = "C"
  * SIGEND_NUMBER.toString(33)     // = "3C"
  * SIGEND_NUMBER.toString(-10, 4) // = "001}"
+ * ```
  */
-SIGNED_NUMBER.toString = (n: SIGNED_NUMBER, length = 0): string => {
-  const char = SIGNED_DIGIT.parse(n).toChar();
-  return (n > -10 && n < 10
-    ? char
-    : Math.floor(Math.abs(n) / 10).toString() + char)
-    .padStart(length, "0");
-};
+SIGNED_NUMBER.toString = (n: number, length = 0): string =>
+  SIGNED_NUMBER(n).toString(length);

@@ -7,6 +7,8 @@ Define Types of COBOL.
 ```ts
 import { SIGNED_NUMBER } from "./mod.ts";
 
-const num = SIGNED_NUMBER.parse("000000010{"); // 100
-const str = SIGNED_NUMBER.toString(num, 10); // "000000010{"
+const a = SIGNED_NUMBER.parse("000000010{").as(); // 100
+const b = 1;
+
+console.log(SIGNED_NUMBER(a + b).toString(10)); // "000000010A"
 ```
