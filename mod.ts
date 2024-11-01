@@ -66,85 +66,94 @@ const c2n = new Map<SIGNED_CHAR, SIGNED_DIGIT>(
  * SIGNED_DIGIT: +0, +1, ..., +9, -0, -1, ..., -9
  */
 type SIGNED_DIGIT = typeof _SIGNED_CHARS[number]["d"];
-const SIGNED_DIGIT = (digit: SIGNED_DIGIT = "0") => ({
-  /**
-   * toChar +1 => "A"
-   */
-  toChar(): SIGNED_CHAR {
-    return d2c.get(digit) as SIGNED_CHAR;
-  },
+const SIGNED_DIGIT = Object.assign(
+  (digit: SIGNED_DIGIT = "0") => ({
+    /**
+     * toChar +1 => "A"
+     */
+    toChar(): SIGNED_CHAR {
+      return d2c.get(digit) as SIGNED_CHAR;
+    },
 
-  /**
-   * isNegative -1 => true
-   */
-  isNegative(): boolean {
-    return digit.startsWith("-");
-  },
+    /**
+     * isNegative -1 => true
+     */
+    isNegative(): boolean {
+      return digit.startsWith("-");
+    },
 
-  /**
-   * toNumber +1 => 1
-   */
-  toNumber(): number {
-    return Number(digit);
+    /**
+     * toNumber +1 => 1
+     */
+    toNumber(): number {
+      return Number(digit);
+    },
+  }),
+  {
+    /**
+     * parse 1234 => +4
+     */
+    parse(n: number) {
+      return SIGNED_DIGIT(
+        (n < 0 ? "-" : "+") + Math.abs(n) % 10 as SIGNED_DIGIT,
+      );
+    },
   },
-});
-
-/**
- * parse 1234 => +4
- */
-SIGNED_DIGIT.parse = (n: number) =>
-  SIGNED_DIGIT((n < 0 ? "-" : "+") + Math.abs(n) % 10 as SIGNED_DIGIT);
+);
 
 /**
  * SIGNED_CHAR: "{", "A", ..., "I", "}", "J", ..., "R"
  */
 type SIGNED_CHAR = typeof _SIGNED_CHARS[number]["c"];
-const SIGNED_CHAR = (c: SIGNED_CHAR) => ({
-  /**
-   * toDigit "A" => +1
-   */
-  toDigit(): SIGNED_DIGIT {
-    return c2n.get(c) as SIGNED_DIGIT;
+const SIGNED_CHAR = Object.assign(
+  (c: SIGNED_CHAR) => ({
+    /**
+     * toDigit "A" => +1
+     */
+    toDigit(): SIGNED_DIGIT {
+      return c2n.get(c) as SIGNED_DIGIT;
+    },
+  }),
+  {
+    /**
+     * parse "000A" => "A"
+     */
+    parse(str: string) {
+      str = str.slice(-1);
+      return SIGNED_CHAR(
+        c2n.has(str as SIGNED_CHAR)
+          ? str as SIGNED_CHAR
+          : d2c.get("0") as SIGNED_CHAR,
+      );
+    },
   },
-});
+);
 
 /**
- * parse "000A" => "A"
- */
-SIGNED_CHAR.parse = (str: string) => {
-  str = str.slice(-1);
-  return SIGNED_CHAR(
-    c2n.has(str as SIGNED_CHAR)
-      ? str as SIGNED_CHAR
-      : d2c.get("0") as SIGNED_CHAR,
-  );
-};
-
-/**
- * SIGNED_NUMBER is S9(4), S9999, etc.
+ * SIGNED_NUMBER
+ *
+ * e.g. S9(4), S9999, etc.
  */
 export type SIGNED_NUMBER = number & { __COBOL_JS_SIGNED_NUMBER: never };
 
 /**
- * SIGNED_NUMBER object
+ * SIGNED_NUMBER_FUNCTION
  *
  * e.g.
  * ```js
- * const a = SIGNED_NUMBER.parse("000A").as() // 1
- * const b = 10;
- * const c = SIGNED_NUMBER(a + b).toString(4) // "001A"
+ * const a = SIGNED_NUMBER().as();          // 0 as SIGNED_NUMBER
+ * const b = SIGNED_NUMBER(10).toString(8); // "0000001A"
  * ```
  */
-export const SIGNED_NUMBER = (n: number = 0): {
-  as(): SIGNED_NUMBER;
-  toString(length?: number): string;
-} => ({
+type SIGNED_NUMBER_FUNCTION = (n?: number) => {
   /**
    * Alias of `as`
+   *
+   * e.g.
+   * ```js
+   * const a = SIGNED_NUMBER(1).as(); // 1 as SIGNED_NUMBER
    */
-  as(): SIGNED_NUMBER {
-    return n as SIGNED_NUMBER;
-  },
+  as(): SIGNED_NUMBER;
 
   /**
    * toString
@@ -157,43 +166,79 @@ export const SIGNED_NUMBER = (n: number = 0): {
    * SIGEND_NUMBER.toString(-10, 4) // = "001}"
    * ```
    */
-  toString: (length = 0): string => {
-    const char = SIGNED_DIGIT.parse(n).toChar();
-    return (n > -10 && n < 10
-      ? char
-      : Math.floor(Math.abs(n) / 10).toString() + char)
-      .padStart(length, "0");
-  },
-});
-
-/**
- * parse String
- *
- * e.g.
- * ```js
- * const a = SIGNED_NUMBER.parse("000A").as() // 1
- * const b = 10;
- * const c = SIGNED_NUMBER(a + b).toString(4) // "001A"
- * ```
- */
-SIGNED_NUMBER.parse = (str: string): ReturnType<typeof SIGNED_NUMBER> => {
-  const trancate = Number(str.slice(0, -1)) * 10;
-  const digit = SIGNED_DIGIT(SIGNED_CHAR.parse(str).toDigit());
-  return SIGNED_NUMBER(
-    (trancate + Math.abs(digit.toNumber())) * (digit.isNegative() ? -1 : 1),
-  );
+  toString(length?: number): string;
 };
 
 /**
- * toString
+ * SIGNED_NUMBER_OBJECT
  *
  * e.g.
  * ```js
- * SIGEND_NUMBER.toString(0)      // = "{"
- * SIGEND_NUMBER.toString(3)      // = "C"
- * SIGEND_NUMBER.toString(33)     // = "3C"
- * SIGEND_NUMBER.toString(-10, 4) // = "001}"
+ * const a = SIGNED_NUMBER.parse("00001A").as(); // 10
+ * const b = 1;                                  // 1
+ * const c = SIGNED_NUMBER(a - b).toString(6);   // "00001{"
  * ```
  */
-SIGNED_NUMBER.toString = (n: number, length = 0): string =>
-  SIGNED_NUMBER(n).toString(length);
+type SIGNED_NUMBER_OBJECT = SIGNED_NUMBER_FUNCTION & {
+  /**
+   * parse String
+   *
+   * e.g.
+   * ```js
+   * const a = SIGNED_NUMBER.parse("00001{").as(); //  10
+   * const b = STRIGN_NUMBER.parse("00001}").as(); // -10
+   * ```
+   */
+  parse(str: string): ReturnType<SIGNED_NUMBER_FUNCTION>;
+
+  /**
+   * to String
+   *
+   * e.g.
+   * ```js
+   * const a = SIGEND_NUMBER.toString(10);     // = "1{"
+   * const b = SIGEND_NUMBER.toString(-10, 6); // = "00001}"
+   * ```
+   */
+  toString(n: number, length?: number): string;
+
+  /**
+   * as SIGNED_NUMBER
+   *
+   * e.g.
+   * ```js
+   * const a = SIGNED_NUMBER.as(1); // 1 as SIGNED_NUMBER
+   * ```
+   */
+  as(n: number): SIGNED_NUMBER;
+};
+
+export const SIGNED_NUMBER: SIGNED_NUMBER_OBJECT = Object.assign(
+  (n: number = 0) => ({
+    as(): SIGNED_NUMBER {
+      return n as SIGNED_NUMBER;
+    },
+    toString: (length = 0): string => {
+      const char = SIGNED_DIGIT.parse(n).toChar();
+      return (n > -10 && n < 10
+        ? char
+        : Math.floor(Math.abs(n) / 10).toString() + char)
+        .padStart(length, "0");
+    },
+  }),
+  {
+    parse(str: string): ReturnType<typeof SIGNED_NUMBER> {
+      const trancate = Number(str.slice(0, -1)) * 10;
+      const digit = SIGNED_DIGIT(SIGNED_CHAR.parse(str).toDigit());
+      return SIGNED_NUMBER(
+        (trancate + Math.abs(digit.toNumber())) * (digit.isNegative() ? -1 : 1),
+      );
+    },
+    toString(n: number, length = 0): string {
+      return SIGNED_NUMBER(n).toString(length);
+    },
+    as(n: number): SIGNED_NUMBER {
+      return SIGNED_NUMBER(n).as();
+    },
+  },
+);
