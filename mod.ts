@@ -171,7 +171,7 @@ export interface SIGNED_NUMBER_STATIC {
    * const b = STRIGN_NUMBER.parse("00001}").as(); // -10
    * ```
    */
-  parse(str: string): ReturnType<SIGNED_NUMBER_FUNCTION>;
+  parse(str: string): SIGNED_NUMBER_FUNCTION_RETURN;
 
   /**
    * to String
@@ -211,10 +211,8 @@ export type SIGNED_NUMBER_OBJECT =
  */
 export const SIGNED_NUMBER: SIGNED_NUMBER_OBJECT = Object.assign(
   (n: number = 0) => ({
-    as(): SIGNED_NUMBER {
-      return n as SIGNED_NUMBER;
-    },
-    toString: (length = 0): string => {
+    as: () => n as SIGNED_NUMBER,
+    toString(length = 0) {
       const char = SIGNED_DIGIT.parse(n).toChar();
       return (n > -10 && n < 10
         ? char
@@ -223,19 +221,15 @@ export const SIGNED_NUMBER: SIGNED_NUMBER_OBJECT = Object.assign(
     },
   }),
   {
-    parse(str: string): ReturnType<typeof SIGNED_NUMBER> {
+    parse(str: string) {
       const trancate = Number(str.slice(0, -1)) * 10;
       const digit = SIGNED_DIGIT(SIGNED_CHAR.parse(str).toDigit());
       return SIGNED_NUMBER(
         (trancate + Math.abs(digit.toNumber())) * (digit.isNegative() ? -1 : 1),
       );
     },
-    toString(n: number, length = 0): string {
-      return SIGNED_NUMBER(n).toString(length);
-    },
-    as(n: number): SIGNED_NUMBER {
-      return SIGNED_NUMBER(n).as();
-    },
+    toString: (n: number, length = 0) => SIGNED_NUMBER(n).toString(length),
+    as: (n: number) => SIGNED_NUMBER(n).as(),
   },
 );
 
@@ -284,7 +278,7 @@ export interface UNSIGNED_NUMBER_STATIC {
    * const b = UNSIGNED_NUMBER.parse("000009").as(); // 9
    * ```
    */
-  parse(str: string): ReturnType<UNSIGNED_NUMBER_FUNCTION>;
+  parse(str: string): UNSIGNED_NUMBER_FUNCTION_RETURN;
 
   /**
    * to String
@@ -324,22 +318,12 @@ export type UNSIGNED_NUMBER_OBJECT =
  */
 export const UNSIGNED_NUMBER: UNSIGNED_NUMBER_OBJECT = Object.assign(
   (n: number = 0) => ({
-    as(): UNSIGNED_NUMBER {
-      return n as UNSIGNED_NUMBER;
-    },
-    toString: (length = 0): string => {
-      return Math.abs(n).toString().padStart(length, "0");
-    },
+    as: () => n as UNSIGNED_NUMBER,
+    toString: (length = 0) => Math.abs(n).toString().padStart(length, "0"),
   }),
   {
-    parse(str: string): ReturnType<typeof UNSIGNED_NUMBER> {
-      return UNSIGNED_NUMBER(Number(str));
-    },
-    toString(n: number, length = 0): string {
-      return UNSIGNED_NUMBER(n).toString(length);
-    },
-    as(n: number): UNSIGNED_NUMBER {
-      return UNSIGNED_NUMBER(n).as();
-    },
+    parse: (str: string) => UNSIGNED_NUMBER(Number(str)),
+    toString: (n: number, length = 0) => UNSIGNED_NUMBER(n).toString(length),
+    as: (n: number) => UNSIGNED_NUMBER(n).as(),
   },
 );
