@@ -149,7 +149,7 @@ export type SIGNED_NUMBER = number & { __COBOL_JS_SIGNED_NUMBER: never };
  * const b = SIGNED_NUMBER(10).toString(8); // "0000001A"
  * ```
  */
-type SIGNED_NUMBER_FUNCTION = (n?: number) => {
+export type SIGNED_NUMBER_FUNCTION = (n?: number) => {
   /**
    * Alias of `as`
    *
@@ -184,7 +184,7 @@ type SIGNED_NUMBER_FUNCTION = (n?: number) => {
  * const c = SIGNED_NUMBER(a - b).toString(6);   // "00001{"
  * ```
  */
-type SIGNED_NUMBER_OBJECT = SIGNED_NUMBER_FUNCTION & {
+export type SIGNED_NUMBER_OBJECT = SIGNED_NUMBER_FUNCTION & {
   /**
    * parse String
    *
@@ -264,7 +264,7 @@ export type UNSIGNED_NUMBER = number & { __COBOL_JS_UNSIGNED_NUMBER: never };
  * const b = UNSIGNED_NUMBER(10).toString(8); // "00000010"
  * ```
  */
-type UNSIGNED_NUMBER_FUNCTION = (n?: number) => {
+export type UNSIGNED_NUMBER_FUNCTION = (n?: number) => {
   /**
    * Alias of `as`
    *
