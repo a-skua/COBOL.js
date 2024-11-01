@@ -1,9 +1,17 @@
 import { assertEquals } from "@std/assert";
-import { SIGNED_NUMBER } from "./mod.ts";
+import { SIGNED_NUMBER, UNSIGNED_NUMBER } from "./mod.ts";
+
+Deno.test("example", () => {
+  const a = SIGNED_NUMBER.parse("A").as();
+  const b = 100;
+  assertEquals(SIGNED_NUMBER(a - b).toString(6), "00009R");
+  assertEquals(UNSIGNED_NUMBER(a - b).toString(6), "000099");
+});
 
 Deno.test("SIGNED_NUMBER()", async (t) => {
   await t.step("zero", () => {
     assertEquals(SIGNED_NUMBER().as(), 0, "zero");
+    assertEquals(SIGNED_NUMBER().toString(), "{", "zero");
   });
 
   await t.step(
@@ -11,19 +19,11 @@ Deno.test("SIGNED_NUMBER()", async (t) => {
     () => assertEquals(SIGNED_NUMBER(1).as(), 1, "number -> SIGNED_NUMBER"),
   );
 
-  await t.step(".toString(10)", () =>
-    assertEquals(
-      SIGNED_NUMBER().toString(10),
-      "000000000{",
-      "zero -> 000000000{",
-    ));
-
-  await t.step(".toString()", () =>
-    assertEquals(
-      SIGNED_NUMBER().toString(),
-      "{",
-      "zero -> {",
-    ));
+  await t.step(
+    ".toString(10)",
+    () =>
+      assertEquals(SIGNED_NUMBER().toString(8), "0000000{", "zero -> 0000000{"),
+  );
 });
 
 Deno.test("SIGNED_NUMBER.parse()", async (t) => {
@@ -177,5 +177,140 @@ Deno.test("SIGNED_NUMBER.toString()", async (t) => {
     for (const [sn, len, expected, message] of tests) {
       assertEquals(SIGNED_NUMBER.toString(sn, len), expected, message);
     }
+  });
+});
+
+Deno.test("UNSIGNED_NUMBER()", async (t) => {
+  await t.step("zero", () => {
+    assertEquals(UNSIGNED_NUMBER().as(), 0, "zero");
+    assertEquals(UNSIGNED_NUMBER().toString(), "0", "zero");
+  });
+
+  await t.step(
+    ".as()",
+    () => assertEquals(UNSIGNED_NUMBER(1).as(), 1, "number -> UNSIGNED_NUMBER"),
+  );
+
+  await t.step(
+    ".toString(10)",
+    () =>
+      assertEquals(
+        UNSIGNED_NUMBER().toString(8),
+        "00000000",
+        "zero -> 00000000",
+      ),
+  );
+});
+
+Deno.test("UNSIGNED_NUMBER.parse()", async (t) => {
+  await t.step("parse(/* STRING */)", () => {
+    const tests = [
+      ["0", 0, '"0" -> 0'],
+      ["1", 1, '"1" -> 1'],
+      ["2", 2, '"2" -> 2'],
+      ["3", 3, '"3" -> 3'],
+      ["4", 4, '"4" -> 4'],
+      ["5", 5, '"5" -> 5'],
+      ["6", 6, '"6" -> 6'],
+      ["7", 7, '"7" -> 7'],
+      ["8", 8, '"8" -> 8'],
+      ["9", 9, '"9" -> 9'],
+      ["0010", 10, '"10" -> 10'],
+      ["0011", 11, '"11" -> 11'],
+      ["0012", 12, '"12" -> 12'],
+      ["0013", 13, '"13" -> 13'],
+      ["0014", 14, '"14" -> 14'],
+      ["0015", 15, '"15" -> 15'],
+      ["0016", 16, '"16" -> 16'],
+      ["0017", 17, '"17" -> 17'],
+      ["0018", 18, '"18" -> 18'],
+      ["0019", 19, '"19" -> 19'],
+    ] as const;
+
+    for (const [input, expected, message] of tests) {
+      assertEquals(
+        UNSIGNED_NUMBER.parse(input).as(),
+        expected as UNSIGNED_NUMBER,
+        message,
+      );
+    }
+  });
+
+  await t.step("UNSIGNED_NUMBER.toString()", async (t) => {
+    await t.step("toString(/* NUMBER */)", () => {
+      const tests = [
+        [-1, "1", '-1 -> "1"'],
+        [-2, "2", '-2 -> "2"'],
+        [-3, "3", '-3 -> "3"'],
+        [-4, "4", '-4 -> "4"'],
+        [-5, "5", '-5 -> "5"'],
+        [-6, "6", '-6 -> "6"'],
+        [-7, "7", '-7 -> "7"'],
+        [-8, "8", '-8 -> "9"'],
+        [-9, "9", '-9 -> "9"'],
+        [0, "0", '0 -> "0"'],
+        [1, "1", '1 -> "1"'],
+        [2, "2", '2 -> "2"'],
+        [3, "3", '3 -> "3"'],
+        [4, "4", '4 -> "4"'],
+        [5, "5", '5 -> "5"'],
+        [6, "6", '6 -> "6"'],
+        [7, "7", '7 -> "7"'],
+        [8, "8", '8 -> "8"'],
+        [9, "9", '9 -> "9"'],
+        [10, "10", '10 -> "10"'],
+        [11, "11", '11 -> "11"'],
+        [12, "12", '12 -> "12"'],
+        [13, "13", '13 -> "13"'],
+        [14, "14", '14 -> "14"'],
+        [15, "15", '15 -> "15"'],
+        [16, "16", '16 -> "16"'],
+        [17, "17", '17 -> "17"'],
+        [18, "18", '18 -> "18"'],
+        [19, "19", '19 -> "19"'],
+      ] as const;
+
+      for (const [un, expected, message] of tests) {
+        assertEquals(UNSIGNED_NUMBER.toString(un), expected, message);
+      }
+    });
+
+    await t.step("toString(/* NUMBER */, /* LENGTH */)", () => {
+      const tests = [
+        [-1, 4, "0001", '-1 -> "0001"'],
+        [-2, 4, "0002", '-2 -> "0002"'],
+        [-3, 4, "0003", '-3 -> "0003"'],
+        [-4, 4, "0004", '-4 -> "0004"'],
+        [-5, 4, "0005", '-5 -> "0005"'],
+        [-6, 4, "0006", '-6 -> "0006"'],
+        [-7, 4, "0007", '-7 -> "0007"'],
+        [-8, 4, "0008", '-8 -> "0009"'],
+        [-9, 4, "0009", '-9 -> "0009"'],
+        [0, 4, "0000", '0 -> "0000"'],
+        [1, 4, "0001", '1 -> "0001"'],
+        [2, 4, "0002", '2 -> "0002"'],
+        [3, 4, "0003", '3 -> "0003"'],
+        [4, 4, "0004", '4 -> "0004"'],
+        [5, 4, "0005", '5 -> "0005"'],
+        [6, 4, "0006", '6 -> "0006"'],
+        [7, 4, "0007", '7 -> "0007"'],
+        [8, 4, "0008", '8 -> "0009"'],
+        [9, 4, "0009", '9 -> "0009"'],
+        [10, 4, "0010", '10 -> "0010"'],
+        [11, 4, "0011", '11 -> "0011"'],
+        [12, 4, "0012", '12 -> "0012"'],
+        [13, 4, "0013", '13 -> "0013"'],
+        [14, 4, "0014", '14 -> "0014"'],
+        [15, 4, "0015", '15 -> "0015"'],
+        [16, 4, "0016", '16 -> "0016"'],
+        [17, 4, "0017", '17 -> "0017"'],
+        [18, 4, "0018", '18 -> "0018"'],
+        [19, 4, "0019", '19 -> "0019"'],
+      ] as const;
+
+      for (const [un, len, expected, message] of tests) {
+        assertEquals(UNSIGNED_NUMBER.toString(un, len), expected, message);
+      }
+    });
   });
 });
