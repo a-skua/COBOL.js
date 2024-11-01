@@ -5,10 +5,11 @@ Define Types of COBOL.
 ## Usage
 
 ```ts
-import { SIGNED_NUMBER } from "./mod.ts";
+import { SIGNED_NUMBER, UNSIGNED_NUMBER } from "./mod.ts";
 
-const a = SIGNED_NUMBER.parse("000000010{").as(); // 100
-const b = 1 as SIGNED_NUMBER; // 1
+const a = SIGNED_NUMBER.parse("0000000A").as(); // 1
+const b = SIGNED_NUMBER.parse("0000010{").as(); // 100
 
-console.log(SIGNED_NUMBER(a + b).toString(10)); // "000000010A"
+console.log(SIGNED_NUMBER(a - b).toString(8)); // "0000009R"
+console.log(UNSIGNED_NUMBER(a - b).toString(8)); // "00000099"
 ```

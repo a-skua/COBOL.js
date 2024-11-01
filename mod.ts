@@ -62,11 +62,7 @@ const c2n = new Map<SIGNED_CHAR, SIGNED_DIGIT>(
   _SIGNED_CHARS.map(({ d, c }) => [c, d]),
 );
 
-/**
- * SIGNED_DIGIT
- *
- * e.g. +0, +1, ..., +9, -0, -1, ..., -9
- */
+/** SIGNED_DIGIT / +0, +1, ..., +9, -0, -1, ..., -9 */
 type SIGNED_DIGIT = typeof _SIGNED_CHARS[number]["d"];
 const SIGNED_DIGIT = Object.assign(
   (digit: SIGNED_DIGIT = "0") => ({
@@ -104,10 +100,7 @@ const SIGNED_DIGIT = Object.assign(
 );
 
 /**
- * SIGNED_CHAR
- *
- * e.g. "{", "A", ..., "I", "}", "J", ..., "R"
- */
+ * SIGNED_CHAR / e.g. "{", "A", ..., "I", "}", "J", ..., "R" */
 type SIGNED_CHAR = typeof _SIGNED_CHARS[number]["c"];
 const SIGNED_CHAR = Object.assign(
   (c: SIGNED_CHAR) => ({
@@ -133,91 +126,18 @@ const SIGNED_CHAR = Object.assign(
   },
 );
 
-/**
- * SIGNED_NUMBER
- *
- * e.g. S9(4), S9999, etc.
- */
+/** SIGNED_NUMBER / S9(4), S9999, etc. */
 export type SIGNED_NUMBER = number & { __COBOL_JS_SIGNED_NUMBER: never };
 
 /**
- * SIGNED_NUMBER_FUNCTION
+ * SIGNED_NUMBER object
  *
- * e.g.
+ * ### e.g.
  * ```js
  * const a = SIGNED_NUMBER().as();          // 0 as SIGNED_NUMBER
  * const b = SIGNED_NUMBER(10).toString(8); // "0000001A"
  * ```
  */
-export type SIGNED_NUMBER_FUNCTION = (n?: number) => {
-  /**
-   * Alias of `as`
-   *
-   * e.g.
-   * ```js
-   * const a = SIGNED_NUMBER(1).as(); // 1 as SIGNED_NUMBER
-   * ```
-   */
-  as(): SIGNED_NUMBER;
-
-  /**
-   * toString
-   *
-   * e.g.
-   * ```js
-   * SIGEND_NUMBER.toString(0)      // = "{"
-   * SIGEND_NUMBER.toString(3)      // = "C"
-   * SIGEND_NUMBER.toString(33)     // = "3C"
-   * SIGEND_NUMBER.toString(-10, 4) // = "001}"
-   * ```
-   */
-  toString(length?: number): string;
-};
-
-/**
- * SIGNED_NUMBER_OBJECT
- *
- * e.g.
- * ```js
- * const a = SIGNED_NUMBER.parse("00001A").as(); // 10
- * const b = 1;                                  // 1
- * const c = SIGNED_NUMBER(a - b).toString(6);   // "00001{"
- * ```
- */
-export type SIGNED_NUMBER_OBJECT = SIGNED_NUMBER_FUNCTION & {
-  /**
-   * parse String
-   *
-   * e.g.
-   * ```js
-   * const a = SIGNED_NUMBER.parse("00001{").as(); //  10
-   * const b = STRIGN_NUMBER.parse("00001}").as(); // -10
-   * ```
-   */
-  parse(str: string): ReturnType<SIGNED_NUMBER_FUNCTION>;
-
-  /**
-   * to String
-   *
-   * e.g.
-   * ```js
-   * const a = SIGEND_NUMBER.toString(10);     // = "1{"
-   * const b = SIGEND_NUMBER.toString(-10, 6); // = "00001}"
-   * ```
-   */
-  toString(n: number, length?: number): string;
-
-  /**
-   * as SIGNED_NUMBER
-   *
-   * e.g.
-   * ```js
-   * const a = SIGNED_NUMBER.as(1); // 1 as SIGNED_NUMBER
-   * ```
-   */
-  as(n: number): SIGNED_NUMBER;
-};
-
 export const SIGNED_NUMBER: SIGNED_NUMBER_OBJECT = Object.assign(
   (n: number = 0) => ({
     as(): SIGNED_NUMBER {
@@ -249,16 +169,121 @@ export const SIGNED_NUMBER: SIGNED_NUMBER_OBJECT = Object.assign(
 );
 
 /**
- * UNSIGNED_NUMBER
+ * SIGNED_NUMBER_FUNCTION
  *
- * e.g. 9(4), 9999, etc.
+ * ### e.g.
+ * ```js
+ * const a = SIGNED_NUMBER().as();          // 0 as SIGNED_NUMBER
+ * const b = SIGNED_NUMBER(10).toString(8); // "0000001A"
+ * ```
  */
+export type SIGNED_NUMBER_FUNCTION = (n?: number) => {
+  /**
+   * Alias of `as`
+   *
+   * ### e.g.
+   * ```js
+   * const a = SIGNED_NUMBER(1).as(); // 1 as SIGNED_NUMBER
+   * ```
+   */
+  as(): SIGNED_NUMBER;
+
+  /**
+   * toString
+   *
+   * ### e.g.
+   * ```js
+   * SIGEND_NUMBER.toString(0)      // = "{"
+   * SIGEND_NUMBER.toString(3)      // = "C"
+   * SIGEND_NUMBER.toString(33)     // = "3C"
+   * SIGEND_NUMBER.toString(-10, 4) // = "001}"
+   * ```
+   */
+  toString(length?: number): string;
+};
+
+/**
+ * SIGNED_NUMBER_OBJECT
+ *
+ * ### e.g.
+ * ```js
+ * const a = SIGNED_NUMBER.parse("00001A").as(); // 10
+ * const b = 1;                                  // 1
+ * const c = SIGNED_NUMBER(a - b).toString(6);   // "00001{"
+ * ```
+ */
+export type SIGNED_NUMBER_OBJECT = SIGNED_NUMBER_FUNCTION & {
+  /**
+   * parse String
+   *
+   * ### e.g.
+   * ```js
+   * const a = SIGNED_NUMBER.parse("00001{").as(); //  10
+   * const b = STRIGN_NUMBER.parse("00001}").as(); // -10
+   * ```
+   */
+  parse(str: string): ReturnType<SIGNED_NUMBER_FUNCTION>;
+
+  /**
+   * to String
+   *
+   * ### e.g.
+   * ```js
+   * const a = SIGEND_NUMBER.toString(10);     // = "1{"
+   * const b = SIGEND_NUMBER.toString(-10, 6); // = "00001}"
+   * ```
+   */
+  toString(n: number, length?: number): string;
+
+  /**
+   * as SIGNED_NUMBER
+   *
+   * ### e.g.
+   * ```js
+   * const a = SIGNED_NUMBER.as(1); // 1 as SIGNED_NUMBER
+   * ```
+   */
+  as(n: number): SIGNED_NUMBER;
+};
+
+/** UNSIGNED_NUMBER / 9(4), 9999, etc. */
 export type UNSIGNED_NUMBER = number & { __COBOL_JS_UNSIGNED_NUMBER: never };
+
+/**
+ * UNSIGNED_NUMBER object
+ *
+ * ### e.g.
+ * ```js
+ * const a = UNSIGNED_NUMBER().as();          // 0 as UNSIGNED_NUMBER
+ * const b = UNSIGNED_NUMBER(10).toString(8); // "00000010"
+ * ```
+ */
+export const UNSIGNED_NUMBER: UNSIGNED_NUMBER_OBJECT = Object.assign(
+  (n: number = 0) => ({
+    as(): UNSIGNED_NUMBER {
+      return n as UNSIGNED_NUMBER;
+    },
+    toString: (length = 0): string => {
+      return Math.abs(n).toString().padStart(length, "0");
+    },
+  }),
+  {
+    parse(str: string): ReturnType<typeof UNSIGNED_NUMBER> {
+      return UNSIGNED_NUMBER(Number(str));
+    },
+    toString(n: number, length = 0): string {
+      return UNSIGNED_NUMBER(n).toString(length);
+    },
+    as(n: number): UNSIGNED_NUMBER {
+      return UNSIGNED_NUMBER(n).as();
+    },
+  },
+);
 
 /**
  * UNSIGNED_NUMBER_FUNCTION
  *
- * e.g.
+ * ### e.g.
  * ```js
  * const a = UNSIGNED_NUMBER().as();          // 0 as UNSIGNED_NUMBER
  * const b = UNSIGNED_NUMBER(10).toString(8); // "00000010"
@@ -271,14 +296,14 @@ export type UNSIGNED_NUMBER_FUNCTION = (n?: number) => {
    * e.g.
    * ```js
    * const a = UNSIGNED_NUMBER(1).as(); // 1 as UNSIGNED_NUMBER
-   * `
+   * ```
    */
   as(): UNSIGNED_NUMBER;
 
   /**
    * toString
    *
-   * e.g.
+   * ### e.g.
    * ```js
    * UNSIGNED_NUMBER.toString(0)      // = "0"
    * UNSIGNED_NUMBER.toString(3)      // = "3"
@@ -303,7 +328,7 @@ export type UNSIGNED_NUMBER_OBJECT = UNSIGNED_NUMBER_FUNCTION & {
   /**
    * parse String
    *
-   * e.g.
+   * ### e.g.
    * ```js
    * const a = UNSIGNED_NUMBER.parse("000010").as(); // 10
    * const b = UNSIGNED_NUMBER.parse("000009").as(); // 9
@@ -314,7 +339,7 @@ export type UNSIGNED_NUMBER_OBJECT = UNSIGNED_NUMBER_FUNCTION & {
   /**
    * to String
    *
-   * e.g.
+   * ### e.g.
    * ```js
    * const a = UNSIGNED_NUMBER.toString(10);     // = "10"
    * const b = UNSIGNED_NUMBER.toString(-10, 6); // = "000010"
@@ -325,32 +350,10 @@ export type UNSIGNED_NUMBER_OBJECT = UNSIGNED_NUMBER_FUNCTION & {
   /**
    * as UNSIGNED_NUMBER
    *
-   * e.g.
+   * ### e.g.
    * ```js
    * const a = UNSIGNED_NUMBER.as(1); // 1 as UNSIGNED_NUMBER
    * ```
    */
   as(n: number): UNSIGNED_NUMBER;
 };
-
-export const UNSIGNED_NUMBER: UNSIGNED_NUMBER_OBJECT = Object.assign(
-  (n: number = 0) => ({
-    as(): UNSIGNED_NUMBER {
-      return n as UNSIGNED_NUMBER;
-    },
-    toString: (length = 0): string => {
-      return Math.abs(n).toString().padStart(length, "0");
-    },
-  }),
-  {
-    parse(str: string): ReturnType<typeof UNSIGNED_NUMBER> {
-      return UNSIGNED_NUMBER(Number(str));
-    },
-    toString(n: number, length = 0): string {
-      return UNSIGNED_NUMBER(n).toString(length);
-    },
-    as(n: number): UNSIGNED_NUMBER {
-      return UNSIGNED_NUMBER(n).as();
-    },
-  },
-);
