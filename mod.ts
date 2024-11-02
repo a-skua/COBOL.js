@@ -58,7 +58,7 @@ const _SIGNED_CHARS = [
 const d2c = new Map<SIGNED_DIGIT, SIGNED_CHAR>(
   _SIGNED_CHARS.map(({ d, c }) => [d, c]),
 );
-const c2n = new Map<SIGNED_CHAR, SIGNED_DIGIT>(
+const c2d = new Map<SIGNED_CHAR, SIGNED_DIGIT>(
   _SIGNED_CHARS.map(({ d, c }) => [c, d]),
 );
 
@@ -108,7 +108,7 @@ const SIGNED_CHAR = Object.assign(
      * toDigit "A" => +1
      */
     toDigit(): SIGNED_DIGIT {
-      return c2n.get(c) as SIGNED_DIGIT;
+      return c2d.get(c) as SIGNED_DIGIT;
     },
   }),
   {
@@ -118,7 +118,7 @@ const SIGNED_CHAR = Object.assign(
     parse(str: string) {
       str = str.slice(-1);
       return SIGNED_CHAR(
-        c2n.has(str as SIGNED_CHAR)
+        c2d.has(str as SIGNED_CHAR)
           ? str as SIGNED_CHAR
           : d2c.get("0") as SIGNED_CHAR,
       );
