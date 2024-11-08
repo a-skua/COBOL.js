@@ -2,6 +2,18 @@
 
 Define Types of COBOL.
 
+## Install
+
+Published on [JSR](https://jsr.io/@askua/cobol).
+
+```sh
+# Deno
+deno add jsr:@askua/cobol
+
+# npm
+npx jsr add @askua/cobol
+```
+
 ## Usage
 
 ```ts
